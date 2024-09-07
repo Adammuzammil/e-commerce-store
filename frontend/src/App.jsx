@@ -14,6 +14,7 @@ import { Toaster } from "react-hot-toast";
 import { useUserStore } from "./stores/useUserStore.js";
 import Navabar from "./components/Navabar.jsx";
 import Adminpage from "./pages/Adminpage.jsx";
+import Category from "./pages/Category.jsx";
 
 const App = () => {
   const { user, checkAuth } = useUserStore();
@@ -47,6 +48,7 @@ const App = () => {
               user?.role === "admin" ? <Adminpage /> : <Navigate to="/" />
             }
           />
+          <Route path="category/:category" element={<Category />} />
         </Routes>
       </div>
     </div>
