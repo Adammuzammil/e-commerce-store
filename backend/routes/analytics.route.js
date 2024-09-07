@@ -1,9 +1,9 @@
 import express from "express";
-import { verifyAdmin, verifyUser } from "../middleware/VerifyUser";
 import {
   getAnalyticsData,
   getDailySalesData,
 } from "../controllers/analytics.controller.js";
+import { verifyAdmin, verifyUser } from "../middleware/VerifyUser.js";
 
 const router = express.Router();
 

@@ -20,13 +20,13 @@ export const createCheckoutSession = async (req, res) => {
       return {
         price_data: {
           currency: "usd",
+          product_data: {
+            name: product.name,
+            images: [product.image],
+          },
           unit_amount: amount,
         },
-        // quantity: product.quantity,
-        product_data: {
-          name: product.name,
-          images: [product.image],
-        },
+        quantity: product.quantity || 1,
       };
     });
 
@@ -146,11 +146,9 @@ export const checkoutSuccess = async (req, res) => {
     }
   } catch (error) {
     console.error("Error processing successful checkout:", error);
-    res
-      .status(500)
-      .json({
-        message: "Error processing successful checkout",
-        error: error.message,
-      });
+    res.status(500).json({
+      message: "Error processing successful checkout",
+      error: error.message,
+    });
   }
 };

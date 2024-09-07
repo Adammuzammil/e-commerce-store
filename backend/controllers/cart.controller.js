@@ -1,16 +1,35 @@
 import Product from "../models/Product.js";
+import mongoose from "mongoose";
 
 export const getCartProducts = async (req, res) => {
   try {
-    const products = await Product.find({ _id: { $in: req.user.cartItems } });
+    console.log("User's cartItems:", req.user.cartItems);
 
-    // add quantity for each product
+    const cartItemIds = req.user.cartItems.map((item) => item._id);
+    console.log("Extracted cartItemIds:", cartItemIds);
+
+    const products = await Product.find({ _id: { $in: cartItemIds } });
+    console.log("Found products:", products);
+
+    if (products.length === 0) {
+      console.log("No products found. Checking individual IDs...");
+      for (let id of cartItemIds) {
+        const product = await Product.findById(id);
+        console.log(`Product for ID ${id}:`, product);
+      }
+    }
+
     const cartItems = products.map((product) => {
-      const item = req.user.cartItems.find(
-        (cartItem) => cartItem.id === product.id
+      const cartItem = req.user.cartItems.find((item) =>
+        item._id.equals(product._id)
       );
-      return { ...product.toJSON(), quantity: item.quantity };
+      return {
+        ...product.toJSON(),
+        quantity: cartItem ? cartItem.quantity : 0,
+      };
     });
+
+    console.log("Final cartItems:", cartItems);
 
     res.json(cartItems);
   } catch (error) {
@@ -24,17 +43,36 @@ export const addToCart = async (req, res) => {
     const { productId } = req.body;
     const user = req.user;
 
-    //checck if the product is already in cart
-    const existingItem = user.cartItems.find((item) => item.id === productId);
-
-    if (existingItem) {
-      //if it's there then increase the quantity or else add it to the cart
-      existingItem.quantity += 1;
-    } else {
-      user.cartItems.push(item);
+    // First, verify that the product exists
+    const product = await Product.findById(productId);
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
     }
 
+    // Convert productId to ObjectId
+    const productObjectId = new mongoose.Types.ObjectId(productId);
+
+    // Check if the product is already in the cart
+    const existingItem = user.cartItems.find((item) =>
+      item._id.equals(productObjectId)
+    );
+
+    if (existingItem) {
+      // If the product is already in the cart, increase the quantity
+      existingItem.quantity += 1;
+    } else {
+      // If the product is not in the cart, add it with an initial quantity of 1
+      const newItem = {
+        _id: productObjectId,
+        quantity: 1,
+      };
+      user.cartItems.push(newItem);
+    }
+
+    // Save the updated cart
     await user.save();
+
+    // Respond with the updated cart
     res.json(user.cartItems);
   } catch (error) {
     console.log("Error in addToCart controller", error.message);

@@ -1,7 +1,22 @@
 import { ShoppingCart } from "lucide-react";
 import React from "react";
+import { useCartStore } from "../stores/useCartStore";
+import { useUserStore } from "../stores/useUserStore";
+import toast from "react-hot-toast";
 
 const ProductCard = ({ product }) => {
+  const { user } = useUserStore();
+  const { addToCart } = useCartStore();
+
+  const handleAddToCart = () => {
+    if (!user) {
+      toast.error("Please login to add to cart", { id: "login" });
+      return;
+    } else {
+      addToCart(product);
+      toast.success("Product added to cart", { id: "added" });
+    }
+  };
   return (
     <div className="flex w-full relative flex-col overflow-hidden rounded-lg border border-gray-700 shadow-lg">
       <div className="relative mx-3 mt-3 flex h-60 overflow-hidden rounded-xl">
@@ -27,6 +42,7 @@ const ProductCard = ({ product }) => {
         <button
           className="flex items-center justify-center rounded-lg bg-emerald-600 px-5 py-2.5 text-center text-sm font-medium
 					 text-white hover:bg-emerald-700 focus:outline-none focus:ring-4 focus:ring-emerald-300"
+          onClick={handleAddToCart}
         >
           <ShoppingCart size={22} className="mr-2" />
           Add to cart

@@ -1,7 +1,9 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Outlet } from "react-router-dom";
 import Navabar from "../components/Navabar";
 import CategoryItem from "../components/CategoryItem";
+import { useCartStore } from "../stores/useCartStore";
+import { useUserStore } from "../stores/useUserStore";
 
 const categories = [
   { href: "/jeans", name: "Jeans", imageUrl: "/jeans.jpg" },
@@ -14,6 +16,12 @@ const categories = [
 ];
 
 const Home = () => {
+  const { getCartItems } = useCartStore();
+  const { user } = useUserStore();
+  useEffect(() => {
+    if (!user) return;
+    getCartItems();
+  }, [getCartItems]);
   return (
     <div className="relative min-h-screen text-white overflow-hidden">
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">

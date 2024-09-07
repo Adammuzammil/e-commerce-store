@@ -15,12 +15,17 @@ import { useUserStore } from "./stores/useUserStore.js";
 import Navabar from "./components/Navabar.jsx";
 import Adminpage from "./pages/Adminpage.jsx";
 import Category from "./pages/Category.jsx";
+import CartPage from "./pages/CartPage.jsx";
+import { useCartStore } from "./stores/useCartStore.js";
 
 const App = () => {
   const { user, checkAuth } = useUserStore();
+
+  console.log();
   useEffect(() => {
     checkAuth();
   }, [checkAuth]);
+
   return (
     <div className="min-h-screen bg-gray-900 relative text-white overflow-hidden">
       {/* Background gradient */}
@@ -49,6 +54,10 @@ const App = () => {
             }
           />
           <Route path="category/:category" element={<Category />} />
+          <Route
+            path="/cart"
+            element={user ? <CartPage /> : <Navigate to="/login" />}
+          />
         </Routes>
       </div>
     </div>
