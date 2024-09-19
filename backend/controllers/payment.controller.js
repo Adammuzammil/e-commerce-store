@@ -1,6 +1,7 @@
 import { stripe } from "../lib/stripe.js";
 import Coupon from "../models/Coupon.js";
 import Order from "../models/Order.js";
+import User from "../models/User.js";
 
 export const createCheckoutSession = async (req, res) => {
   try {
@@ -92,6 +93,7 @@ const createStripeCoupon = async (percentage) => {
 };
 
 const createNewCoupon = async (userId) => {
+  await Coupon.findOneAndDelete({ userId });
   const newCoupon = new Coupon({
     code: "VIP" + Math.random().toString(36).substring(2, 8).toUpperCase(),
     discountPercentage: 10,
@@ -122,20 +124,24 @@ export const checkoutSuccess = async (req, res) => {
         );
       }
 
-      //create new order
+      // create a new Order
       const products = JSON.parse(session.metadata.products);
       const newOrder = new Order({
-        userId: session.metadata.userId,
+        user: session.metadata.userId,
         products: products.map((product) => ({
           product: product.id,
           quantity: product.quantity,
           price: product.price,
         })),
-        totalAmount: session.amount_total / 100,
+        totalAmount: session.amount_total / 100, // convert from cents to dollars,
         stripeSessionId: sessionId,
       });
 
       await newOrder.save();
+
+      const user = await User.findById(session.metadata.userId); // Assuming you have a User model
+      user.cartItems = [];
+      await user.save();
 
       res.status(200).json({
         success: true,

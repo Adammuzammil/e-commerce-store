@@ -9,39 +9,30 @@ export const useCartStore = create((set, get) => ({
   subtotal: 0,
   isCouponApplied: false,
 
-  // getCartItems: async () => {
-  //   try {
-  //     console.log("Fetching cart items...");
-  //     const res = await axios.get("/cart");
-  //     console.log("Response from /cart:", res);
+  getMyCoupon: async () => {
+    try {
+      const response = await axios.get("/coupons");
+      set({ coupon: response.data });
+    } catch (error) {
+      console.error("Error fetching coupon:", error);
+    }
+  },
+  applyCoupon: async (code) => {
+    try {
+      const response = await axios.post("/coupons/validate", { code });
+      set({ coupon: response.data, isCouponApplied: true });
+      get().calculateTotals();
+      toast.success("Coupon applied successfully");
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to apply coupon");
+    }
+  },
+  removeCoupon: () => {
+    set({ coupon: null, isCouponApplied: false });
+    get().calculateTotals();
+    toast.success("Coupon removed");
+  },
 
-  //     if (res.data && Array.isArray(res.data) && res.data.length > 0) {
-  //       set({ cart: res.data });
-  //       console.log("Cart set to:", res.data);
-  //     } else {
-  //       console.log("Cart data is empty or invalid:", res.data);
-  //       set({ cart: [] });
-  //     }
-
-  //     get().calculateTotals();
-  //   } catch (error) {
-  //     console.error("Error fetching cart items:", error);
-  //     if (error.response) {
-  //       console.error("Response data:", error.response.data);
-  //       console.error("Response status:", error.response.status);
-  //       console.error("Response headers:", error.response.headers);
-  //     } else if (error.request) {
-  //       console.error("No response received:", error.request);
-  //     } else {
-  //       console.error("Error message:", error.message);
-  //     }
-  //     set({ cart: [] });
-  //     toast.error(
-  //       error.response?.data?.message ||
-  //         "An error occurred while fetching cart items"
-  //     );
-  //   }
-  // },
   addToCart: async (product) => {
     try {
       await axios.post("/cart", { productId: product._id });
@@ -75,6 +66,15 @@ export const useCartStore = create((set, get) => ({
       console.error("Error fetching cart:", error);
       set({ cart: [] });
       toast.error(error.response?.data?.message || "An error occurred");
+    }
+  },
+  clearCart: async () => {
+    try {
+      await axios.delete("/cart/clear"); // Assuming there's an endpoint for clearing the cart server-side
+      set({ cart: [], coupon: null, total: 0, subtotal: 0 });
+    } catch (error) {
+      console.error("Error clearing cart on the server:", error);
+      toast.error("Failed to clear the cart.");
     }
   },
   removeFromCart: async (productId) => {

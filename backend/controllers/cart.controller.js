@@ -121,3 +121,18 @@ export const updateQuantity = async (req, res) => {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
+
+export const clearCart = async (req, res) => {
+  try {
+    const user = req.user; // Assuming req.user contains the authenticated user's data
+    user.cartItems = []; // Clear the cart items
+    await user.save(); // Save the updated user document
+    res.json({
+      message: "Cart cleared successfully",
+      cartItems: user.cartItems,
+    });
+  } catch (error) {
+    console.error("Error clearing cart:", error.message);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};

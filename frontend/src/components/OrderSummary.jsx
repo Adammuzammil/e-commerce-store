@@ -7,7 +7,7 @@ import { loadStripe } from "@stripe/stripe-js";
 import axios from "../lib/axios";
 
 const stripePromise = loadStripe(
-  "pk_test_51NhSPbSHfrJUeb38CM70NkZm67WBiEjOGCzWuD0q6Vlpe2PE03JU1qh4jbSAci4W0ord52E65AGdSEda9K1b30dz00r8EPWceO"
+  "pk_test_51Q0PegLKI1KumRZV5gLNdP79tdzX8T0NnWXQppU6xF125bQgy8I726oJpqv6LRa0LepKewASbS5KdV2bUrvYHfD3001YahRifd"
 );
 
 const OrderSummary = () => {
@@ -26,7 +26,13 @@ const OrderSummary = () => {
     });
 
     const session = res.data;
-    console.log(session);
+    const result = await stripe.redirectToCheckout({
+      sessionId: session.id,
+    });
+
+    if (result.error) {
+      console.error("Error: ", result.error);
+    }
   };
   return (
     <motion.div
