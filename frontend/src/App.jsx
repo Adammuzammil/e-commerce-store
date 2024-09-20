@@ -18,6 +18,10 @@ import Category from "./pages/Category.jsx";
 import CartPage from "./pages/CartPage.jsx";
 import { useCartStore } from "./stores/useCartStore.js";
 import Success from "./pages/Success.jsx";
+import Header from "./components/Header.jsx";
+import Footer from "./components/Footer.jsx";
+import Collections from "./pages/Collections.jsx";
+import Searchbar from "./components/Searchbar.jsx";
 
 const App = () => {
   const { user, checkAuth } = useUserStore();
@@ -35,11 +39,14 @@ const App = () => {
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-[radial-gradient(ellipse_at_top,rgba(16,185,129,0.3)_0%,rgba(10,80,60,0.2)_45%,rgba(0,0,0,0.1)_100%)]" />
         </div>
       </div>
-      <div className="relative z-50 pt-20">
-        <Navabar />
+      <div className="relative  px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw]">
+        {/* <Navabar /> */}
+        <Header />
+        <Searchbar />
         <Toaster />
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/collections" element={<Collections />} />
           <Route
             path="signup"
             element={!user ? <Signup /> : <Navigate to="/" />}
@@ -64,6 +71,7 @@ const App = () => {
             element={!user ? <Login /> : <Success />}
           />
         </Routes>
+        <Footer />
       </div>
     </div>
   );
